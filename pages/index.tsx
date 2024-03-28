@@ -35,7 +35,7 @@ export default function Home() {
   const logoutWithRedirect = () =>
     logout({
       logoutParams: {
-        returnTo: window.location.origin,
+        returnTo: `${process.env.callback}`,
       },
     });
 

@@ -7,7 +7,7 @@ export default function App({ Component, pageProps }: AppProps) {
     domain: `${process.env.domain}`,
     clientId: `${process.env.clientId}`,
     authorizationParams: {
-      redirect_uri: 'http://localhost:3000',
+      redirect_uri: `${process.env.callback}`,
     },
   };
 
