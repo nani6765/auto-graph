@@ -54,14 +54,14 @@ function LineChart15Sec({ autoUpdate }: Props) {
       setLabels((prev) => {
         const prevList =
           prev.length + currentTime.length > maxLength
-            ? prev.slice(-(maxLength - currentTime.length))
+            ? prev.slice(prev.length - (maxLength - currentTime.length))
             : prev;
         return [...prevList, ...currentTimeList];
       });
       setFakeData((prev) => {
         const prevList =
           prev.length + fakeDataList.length > maxLength
-            ? prev.slice(-(maxLength - fakeDataList.length))
+            ? prev.slice(prev.length - (maxLength - fakeDataList.length))
             : prev;
         return [...prevList, ...fakeDataList];
       });
