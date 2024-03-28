@@ -80,7 +80,7 @@ function LineChart15Sec({ autoUpdate }: Props) {
 
   return (
     <div className="content">
-      <Line height={100} options={options} data={data} />
+      <Line height={70} options={options} data={data} />
     </div>
   );
 }
