@@ -1,4 +1,6 @@
-export const options = {
+import type { ChartOptions } from 'chart.js';
+
+export const options: ChartOptions<'line'> = {
   responsive: true,
   plugins: {
     legend: {

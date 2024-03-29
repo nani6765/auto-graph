@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Chart as ChartJS } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
@@ -7,49 +8,38 @@ import { options } from './const';
 
 type Props = {
   autoUpdate: boolean;
+  data: number[];
 };
 
-function LineChart5Sec({ autoUpdate }: Props) {
+function LineChart5Sec({ autoUpdate, data }: Props) {
+  const chartRef = useRef<ChartJS<'line'>>(null);
   const currentTime = dayjs();
   const [maxLength, setMaxLength] = useState(30);
-  const [labels, setLabels] = useState(
-    Array.from(new Array(maxLength), (_, index) => {
-      const diffTime = (maxLength - 1 - index) * 5;
-      const diff = currentTime.subtract(diffTime, 's');
-      return diff.format('mm:ss');
-    })
-  );
-  const [fakeData, setFakeData] = useState(
-    labels.map(() => faker.number.int({ min: 0, max: 1000 }))
-  );
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: '5sec/1Data',
-        data: fakeData,
-        borderColor: 'rgb(132, 99, 255)',
-        backgroundColor: 'rgba(132, 99, 255, 0.5)',
-      },
-    ],
-  };
+  const labels = Array.from(new Array(maxLength), (_, index) => {
+    const diffTime = (maxLength - 1 - index) * 5;
+    const diff = currentTime.subtract(diffTime, 's');
+    return diff.format('mm:ss');
+  });
 
   const enqueueWidthAutoDequeue = useCallback(() => {
-    const currentTime = [dayjs().format('mm:ss')];
-    const fakeData = [faker.number.int({ min: 0, max: 1000 })];
-
-    if (autoUpdate) {
-      setLabels((prev) => {
-        const prevList = prev.length === maxLength ? prev.slice(1) : prev;
-        return [...prevList, ...currentTime];
-      });
-      setFakeData((prev) => {
-        const prevList = prev.length === maxLength ? prev.slice(1) : prev;
-        return [...prevList, ...fakeData];
-      });
+    if (!chartRef.current || !autoUpdate) {
+      return;
     }
-  }, [autoUpdate]);
+    const chart = chartRef.current;
+    const label = dayjs().format('mm:ss');
+    const data = faker.number.int({ min: 0, max: 10000 });
+
+    chart.config.data.datasets[0].data.push(data);
+    chart.config.data.datasets[0].data.shift();
+
+    if (chart.config.data.labels) {
+      chart.config.data.labels.push(label);
+      chart.config.data.labels.shift();
+    }
+
+    chart.update();
+  }, [autoUpdate, chartRef]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,7 +53,23 @@ function LineChart5Sec({ autoUpdate }: Props) {
 
   return (
     <div className="content">
-      <Line height={70} options={options} data={data} />
+      <Line
+        id="5sec"
+        ref={chartRef}
+        height={70}
+        options={options}
+        data={{
+          labels,
+          datasets: [
+            {
+              label: '5sec/1Data',
+              data: [...data],
+              borderColor: 'rgb(132, 99, 255)',
+              backgroundColor: 'rgba(132, 99, 255, 0.5)',
+            },
+          ],
+        }}
+      />
     </div>
   );
 }
