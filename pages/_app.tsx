@@ -4,10 +4,10 @@ import type { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {
   const providerConfig: Auth0ProviderOptions = {
-    domain: `${process.env.domain}`,
-    clientId: `${process.env.clientId}`,
+    domain: `${process.env.NEXT_PUBLIC_OKTA_DOMAIN}`,
+    clientId: `${process.env.NEXT_PUBLIC_OKTA_CLIENT_ID}`,
     authorizationParams: {
-      redirect_uri: `${process.env.callback}`,
+      redirect_uri: `${process.env.NEXT_PUBLIC_OKTA_REDIRECT_URI}`,
     },
   };
 

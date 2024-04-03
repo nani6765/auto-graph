@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import {
   Chart as ChartJS,
@@ -36,13 +36,31 @@ export default function Home() {
     faker.number.int({ min: 0, max: 10000 })
   );
 
-  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    loginWithRedirect,
+    logout,
+    getAccessTokenSilently,
+  } = useAuth0();
   const logoutWithRedirect = () =>
     logout({
       logoutParams: {
-        returnTo: `${process.env.callback}`,
+        returnTo: `${process.env.NEXT_PUBLIC_OKTA_REDIRECT_URI}`,
       },
     });
+
+  const consoleToken = useCallback(async () => {
+    if (isAuthenticated) {
+      const token = await getAccessTokenSilently();
+      console.log('token : ', token);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    consoleToken();
+  }, [consoleToken]);
 
   return (
     <MainWrapper>
@@ -54,21 +72,25 @@ export default function Home() {
             onChange={() => setAutoUpdate((prev) => !prev)}
           />
         </div>
-        {isAuthenticated ? (
-          <div>
-            {user && user.picture && (
-              <Image
-                className="profile"
-                width={40}
-                height={40}
-                src={user.picture}
-                alt={user.email ?? ''}
-              />
+        {!isLoading && (
+          <>
+            {isAuthenticated ? (
+              <div>
+                {user && user.picture && (
+                  <Image
+                    className="profile"
+                    width={40}
+                    height={40}
+                    src={user.picture}
+                    alt={user.email ?? ''}
+                  />
+                )}
+                <button onClick={() => logoutWithRedirect()}>logout</button>
+              </div>
+            ) : (
+              <button onClick={() => loginWithRedirect()}>login</button>
             )}
-            <button onClick={() => logoutWithRedirect()}>logout</button>
-          </div>
-        ) : (
-          <button onClick={() => loginWithRedirect()}>login</button>
+          </>
         )}
       </div>
       <LineChart5Sec autoUpdate={autoUpdate} data={data} />
